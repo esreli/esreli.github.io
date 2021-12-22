@@ -1,12 +1,4 @@
-<!--
-
-To run this demo, you need to replace 'YOUR_API_KEY' with an API key from the ArcGIS Developer dashboard.
-
-Sign up for a free account and get an API key.
-
-https://developers.arcgis.com/documentation/mapping-apis-and-services/get-started/
-
- --><html>
+<html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -27,12 +19,14 @@ https://developers.arcgis.com/documentation/mapping-apis-and-services/get-starte
     "esri/config",
     "esri/Map",
     "esri/views/MapView",
+    "esri/Graphic",
+    "esri/layers/GraphicsLayer",
+    "esri/layers/FeatureLayer",
+    "esri/widgets/Legend"
 
-    "esri/layers/FeatureLayer"
+  ], function(esriConfig,Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Legend) {
 
-  ], function(esriConfig,Map, MapView, FeatureLayer) {
-
-  esriConfig.apiKey = "YOUR_API_KEY";
+  esriConfig.apiKey = "AAPK133b4c5f27824119b3d610fda0251367PvS-Bbp7DYul3-WizEoTkcIj5YCzRR_1-z5eI2J7UYonxQ9yGxqArFUXwL8ZQSPb";
 
   const map = new Map({
     basemap: "arcgis-topographic"
@@ -41,30 +35,62 @@ https://developers.arcgis.com/documentation/mapping-apis-and-services/get-starte
   const view = new MapView({
     container: "viewDiv",
     map: map,
-    center: [-118.80543,34.02700],
-    zoom: 13
+    center: [-122.843427,38.423251],
+    zoom: 14
   });
 
-//Trailheads feature layer (points)
-  const trailheadsLayer = new FeatureLayer({
-    url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads/FeatureServer/0"
+  const graphicsLayer = new GraphicsLayer();
+  map.add(graphicsLayer);
+
+  const point = { //Create a point
+    type: "point",
+    longitude: -122.843427,
+    latitude: 38.423251
+ };
+ const simpleMarkerSymbol = {
+    type: "simple-marker",
+    color: [226, 119, 40],  // Orange
+    outline: {
+        color: [255, 255, 255], // White
+        width: 1
+    }
+ };
+ const pointGraphic = new Graphic({
+    geometry: point,
+    symbol: simpleMarkerSymbol
+ });
+ graphicsLayer.add(pointGraphic);
+
+  const popupHazardAreas = {
+        "title": "Flood Hazard Area",
+        "content": "<p><b>Zone:</b> {FLD_ZONE}</p><p>Learn more about your <a href='https://www.fema.gov/blog/fema-flood-maps-and-zones-explained' target='blank'>flood zone</a>.</p>"
+      }
+
+  const floodHazardAreas = new FeatureLayer({
+    url: "https://hazards.fema.gov/gis/nfhl/rest/services/FIRMette/NFHLREST_FIRMette/MapServer/20",
+    outFields: ["FLD_ZONE"],
+    popupTemplate: popupHazardAreas
   });
 
-  map.add(trailheadsLayer);
+  map.add(floodHazardAreas);
+  view.when(() => {
+          // get the first layer in the collection of operational layers in the WebMap
+          // when the resources in the MapView have loaded.
 
-//Trails feature layer (lines)
-  const trailsLayer = new FeatureLayer({
-    url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0"
-  });
+          const legend = new Legend({
+            view: view,
+            style: "card",
+            layerInfos: [
+              {
+                layer: floodHazardAreas,
+                title: "Flood Hazard Areas"
+              }
+            ]
+          });
 
-  map.add(trailsLayer, 0);
-
-// Parks and open spaces (polygons)
-  const parksLayer = new FeatureLayer({
-    url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space/FeatureServer/0"
-  });
-
-  map.add(parksLayer, 0);
+          // Add widget to the bottom right corner of the view
+          // view.ui.add(legend, "bottom-right");
+        });
 
   });
 </script>

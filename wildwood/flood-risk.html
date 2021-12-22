@@ -1,0 +1,134 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>20489 Wildwood W Dr, Penn Valley, Nevada County, California</title>
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.22/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.22/"></script>
+
+    <script>
+        require([
+            "esri/config",
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/widgets/BasemapToggle",
+            "esri/Graphic",
+            "esri/layers/GraphicsLayer",
+            "esri/layers/FeatureLayer"
+        ], function (esriConfig, Map, MapView, BasemapToggle, Graphic, GraphicsLayer, FeatureLayer) {
+
+            esriConfig.apiKey = "AAPK133b4c5f27824119b3d610fda0251367PvS-Bbp7DYul3-WizEoTkcIj5YCzRR_1-z5eI2J7UYonxQ9yGxqArFUXwL8ZQSPb";
+
+            // Home Address
+            const point = { //Create a point
+                type: "point",
+                longitude: -121.232599,
+                latitude: 39.226514
+            };
+
+            // Map & MapView
+            const map = new Map({
+                basemap: "arcgis-light-gray"
+            });
+            const view = new MapView({
+                container: "viewDiv",
+                map: map,
+                center: point,
+                zoom: 12
+            });
+
+            // Basemap Toggle
+            const basemapToggle = new BasemapToggle({
+                view: view,
+                nextBasemap: "arcgis-imagery"
+            });
+            view.ui.add(basemapToggle, "bottom-right");
+
+            // Graphics Layer
+            const graphicsLayer = new GraphicsLayer();
+            map.add(graphicsLayer);
+
+            // Home Marker Graphic
+            const simpleMarkerSymbol = {
+                type: "simple-marker",
+                color: [226, 119, 40],  // Orange
+                outline: {
+                    color: [255, 255, 255], // White
+                    width: 1
+                }
+            };
+            const pointGraphic = new Graphic({
+                geometry: point,
+                symbol: simpleMarkerSymbol
+            });
+            graphicsLayer.add(pointGraphic);
+
+            // FEMA Risk Layer
+            const popupHazardAreas = {
+                "title": "Flood Risk",
+                "content": "Risk: {RFLD_RISKR}</p><p>Learn more about your <a href='https://www.fema.gov/flood-maps/products-tools/national-risk-index' target='blank'>flood risk</a>.</p>"
+            }
+            const defaultSym = {
+                type: "simple-fill", // autocasts as new SimpleFillSymbol()
+                outline: {
+                    // autocasts as new SimpleLineSymbol()
+                    color: [128, 128, 128, 0.2],
+                    width: "0.5px"
+                }
+            };
+            const renderer = {
+                type: "simple", // autocasts as new SimpleRenderer()
+                symbol: defaultSym, // the default symbol defined in step 1
+                label: "FEMA River Risk Score", // label for the legend
+                visualVariables: [
+                    {
+                        type: "color", // indicates this is a color visual variable
+                        field: "RFLD_RISKS", // total population in poverty
+                        //normalizationField: "TOTPOP_CY", // total population
+                        stops: [
+                            {
+                                value: 2, // features where < 10% of the pop in poverty
+                                color: "#eff3ff", // will be assigned this color (beige)
+                                label: "20% or lower" // label to display in the legend
+                            },
+                            {
+                                value: 24, // features where > 30% of the pop in poverty
+                                color: "#08519c", // will be assigned this color (purple)
+                                label: "80% or higher" // label to display in the legend
+                            }
+                        ]
+
+                        // features with values between 0.1 - 0.3 will be assigned
+                        // a color on a ramp between beige and purple proportional
+                        // to where the value falls between 0.1 and 0.3
+                    }
+                ]
+            };
+            const floodHazardAreas = new FeatureLayer({
+                url: "https://services.arcgis.com/XG15cJAlne2vxtgt/ArcGIS/rest/services/National_Risk_Index_Census_Tracts/FeatureServer/0",
+                outFields: ["RFLD_RISKS", "RFLD_RISKR"],
+                popupTemplate: popupHazardAreas,
+                renderer: renderer
+            });
+            map.add(floodHazardAreas);
+
+        });
+    </script>
+</head>
+
+<body>
+    <div id="viewDiv"></div>
+</body>
+
+</html>

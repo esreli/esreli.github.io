@@ -1,0 +1,97 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>20489 Wildwood W Dr, Penn Valley, Nevada County, California</title>
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.22/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.22/"></script>
+
+    <script>
+        require([
+            "esri/config",
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/widgets/BasemapToggle",
+            "esri/Graphic",
+            "esri/layers/GraphicsLayer",
+            "esri/layers/FeatureLayer"
+        ], function (esriConfig, Map, MapView, BasemapToggle, Graphic, GraphicsLayer, FeatureLayer) {
+
+            esriConfig.apiKey = "AAPK133b4c5f27824119b3d610fda0251367PvS-Bbp7DYul3-WizEoTkcIj5YCzRR_1-z5eI2J7UYonxQ9yGxqArFUXwL8ZQSPb";
+
+            // Home Address
+            const point = { //Create a point
+                type: "point",
+                longitude: -121.232599,
+                latitude: 39.226514
+            };
+
+            // Map & MapView
+            const map = new Map({
+                basemap: "arcgis-light-gray"
+            });
+            const view = new MapView({
+                container: "viewDiv",
+                map: map,
+                center: point,
+                zoom: 14
+            });
+
+            // Basemap Toggle
+            const basemapToggle = new BasemapToggle({
+                view: view,
+                nextBasemap: "arcgis-imagery"
+            });
+            view.ui.add(basemapToggle,"bottom-right");
+
+            // Graphics Layer
+            const graphicsLayer = new GraphicsLayer();
+            map.add(graphicsLayer);
+
+            // Home Marker Graphic
+            const simpleMarkerSymbol = {
+                type: "simple-marker",
+                color: [226, 119, 40],  // Orange
+                outline: {
+                    color: [255, 255, 255], // White
+                    width: 1
+                }
+            };
+            const pointGraphic = new Graphic({
+                geometry: point,
+                symbol: simpleMarkerSymbol
+            });
+            graphicsLayer.add(pointGraphic);
+
+            // Flood Hazards Layer
+            const popupHazardAreas = {
+                "title": "Flood Hazard Area",
+                "content": "<p><b>Zone:</b> {FLD_ZONE}</p><p>Learn more about your <a href='https://www.fema.gov/blog/fema-flood-maps-and-zones-explained' target='blank'>flood zone</a>.</p>"
+            }
+            const floodHazardAreas = new FeatureLayer({
+                url: "https://hazards.fema.gov/gis/nfhl/rest/services/FIRMette/NFHLREST_FIRMette/MapServer/20",
+                outFields: ["FLD_ZONE"],
+                popupTemplate: popupHazardAreas
+            });
+            map.add(floodHazardAreas);
+
+        });
+    </script>
+</head>
+
+<body>
+    <div id="viewDiv"></div>
+</body>
+
+</html>
