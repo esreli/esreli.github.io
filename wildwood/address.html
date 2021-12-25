@@ -39,7 +39,7 @@
 
             // Map & MapView
             const map = new Map({
-                basemap: "arcgis-topographic"
+                basemap: "arcgis-imagery"
             });
             const view = new MapView({
                 container: "viewDiv",
@@ -51,7 +51,7 @@
             // Basemap Toggle
             const basemapToggle = new BasemapToggle({
                 view: view,
-                nextBasemap: "arcgis-imagery"
+                nextBasemap: "arcgis-topographic"
             });
             view.ui.add(basemapToggle,"bottom-right");
 
