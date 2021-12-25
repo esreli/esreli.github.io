@@ -39,7 +39,7 @@
 
             // Map & MapView
             const map = new Map({
-                basemap: "arcgis-light-gray"
+                basemap: "arcgis-topographic"
             });
             const view = new MapView({
                 container: "viewDiv",
@@ -119,6 +119,7 @@
                 url: "https://services.arcgis.com/XG15cJAlne2vxtgt/ArcGIS/rest/services/National_Risk_Index_Census_Tracts/FeatureServer/0",
                 outFields: ["RFLD_RISKS", "RFLD_RISKR"],
                 popupTemplate: popupHazardAreas,
+                opacity: 0.4,
                 renderer: renderer
             });
             map.add(floodHazardAreas);
