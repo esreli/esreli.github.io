@@ -77,11 +77,11 @@
             graphicsLayer.add(pointGraphic);
 
             // Historical Fires Layer
-            const popupHazardAreas = {
+            const popupHistoricalFires = {
                 "title": "Historical Fire Area",
                 "content": "<p>The <b>{FIRE_NAME}</b> of <b>{YEAR_}</b> burned <b>{GIS_ACRES}</b> acres of land.</p><p>Learn more about historical <a href='https://hub-calfire-forestry.hub.arcgis.com/datasets/CALFIRE-Forestry::california-wildland-fire-perimeters-all/about?layer=0' target='blank'>fire boundaries</a>.</p>"
             }
-            const renderer = new SimpleRenderer({
+            const historicalRenderer = new SimpleRenderer({
                 symbol: new SimpleFillSymbol({
                     color: "rgba(255, 0, 0, .4)",
                     outline: {
@@ -90,14 +90,37 @@
                     }
                 })
             });
-            const fireHazardAreasLocal = new FeatureLayer({
+            const historicalFiresLayer = new FeatureLayer({
                 url: "https://egis.fire.ca.gov/arcgis/rest/services/FRAP/FirePerimeters_FS/FeatureServer/0",
                 outFields: ["YEAR_", "FIRE_NAME", "GIS_ACRES"],
-                popupTemplate: popupHazardAreas,
-                renderer: renderer,
+                popupTemplate: popupHistoricalFires,
+                renderer: historicalRenderer,
                 opacity: 0.5
             });
-            map.add(fireHazardAreasLocal);
+            map.add(historicalFiresLayer);
+            
+            // Controlled Burn Areas
+            const popupControlledBurnAreas = {
+                "title": "Controlled Burn Area",
+                "content": "<p>The <b>{AGENCY}</b> burned <b>{GIS_ACRES}</b> acres of land in <b>{YEAR_}</b>.</p><p>Learn more about controlled <a href='https://hub-calfire-forestry.hub.arcgis.com/datasets/CALFIRE-Forestry::california-wildland-fire-perimeters-all/about?layer=1' target='blank'>burn areas</a>.</p>"
+            }
+            const controlledRenderer = new SimpleRenderer({
+                symbol: new SimpleFillSymbol({
+                    color: "rgba(255, 137, 0, .4)",
+                    outline: {
+                        color: "rgba(255, 137, 0, 1)",
+                        width: .2
+                    }
+                })
+            });
+            const controlledBurnArea = new FeatureLayer({
+                url: "https://egis.fire.ca.gov/arcgis/rest/services/FRAP/FirePerimeters_FS/FeatureServer/1",
+                outFields: ["YEAR_", "AGENCY", "GIS_ACRES"],
+                popupTemplate: popupControlledBurnAreas,
+                renderer: controlledRenderer,
+                opacity: 0.5
+            });
+            map.add(controlledBurnArea);
         });
     </script>
 </head>
